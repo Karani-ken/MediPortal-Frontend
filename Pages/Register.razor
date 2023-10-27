@@ -1,0 +1,69 @@
+﻿@page "/signup"
+@using MediPortal_Client.Models.Authentication;
+@inject IAuthInterface authInterface
+@inject NavigationManager navManager
+ <div class="row m-lg-5 my-4 p-3 shadow" style="min-height:80vh; border-radius:30px 0 30px 0;">
+     
+        <div class="col-lg-6 text-center">
+        <h1 class=" p-3">sign up</h1>
+            <img src="https://cdn.pixabay.com/photo/2016/08/31/11/54/icon-1633249_640.png" style="height:200px;" class="my-3"/>
+            <p class="">Already member? <a href="/login" style="color:#000235;">Sign in</a></p>
+        </div>
+        <div class="col-lg-6 ">
+        <EditForm Model="@user" OnValidSubmit=" registerUser">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                 <div class="form-group ">
+                    <label for="firstname">Firstname</label>
+                    <InputText type="text" @bind-Value="@user.firstname" id="firstname" class="form-control p-3" />
+                    <ValidationMessage For="@(()=>user.firstname)" />
+                </div>
+                 <div class="form-group ">
+                    <label for="lastname">Lastname</label>
+                    <InputText type="text" @bind-Value="@user.lastname" id="lastname" class="form-control p-3" />
+                    <ValidationMessage For="@(()=>user.lastname)" />
+                </div>
+            <div class="form-group ">
+                <label for="surname">Surname</label>
+                <InputText type="text" @bind-Value="@user.surname" id="surname" class="form-control p-3" />
+                <ValidationMessage For="@(()=>user.surname)" />
+            </div>
+                <div class="form-group ">
+                    <label for="email">Email</label>
+                    <InputText type="email" @bind-Value="@user.Email" id="email" class="form-control p-3" />
+                    <ValidationMessage For="@(()=>user.Email)" />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <InputText type="text" @bind-Value="@user.Password" id="password" class="form-control p-3" />
+                    <ValidationMessage For="@(()=>user.Password)" />
+                </div>
+          
+                <div class="form-group p-3 text-center">
+                    <button type="submit" class="btn btn-primary p-2" style="background:#000235; width:150px; font-weight:600; border-radius:20px; border:none;">sign up</button>
+                </div>
+            </EditForm>
+    </div>
+    </div>
+
+@code {
+    private RegistrationRequestDto user = new RegistrationRequestDto();
+
+    private async Task registerUser()
+    {
+        try
+        {
+            var res = await authInterface.RegisterUser(user);
+          
+            if (res.IsSuccess)
+            {
+                navManager.NavigateTo("/login");
+            }
+        }catch(Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message); 
+        }
+        
+    }
+
+}

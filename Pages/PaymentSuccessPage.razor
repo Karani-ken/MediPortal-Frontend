@@ -1,0 +1,73 @@
+﻿@page "/paymentSuccess/{Id}"
+@using MediPortal_Client.Services.Payment;
+@using MediPortal_Client.Services.Appointment;
+@inject IAppointmentInterface _appointmentInterface
+@inject IPaymentInterface _payment
+@if (IsPaymentSuccess)
+{
+    <div class="row mb-2">
+        <div class="col-6">
+            <img src="https://cdn.pixabay.com/photo/2018/09/11/17/38/delivery-3670118_640.jpg" class="h-100 w-100" />
+        </div>
+        <div class="col-6 p-2">
+            <p>Payment was Success</p>
+            <p><i> Thank you for booking with us!! </i></p>
+
+            <a class="btn btn-outline-success mt-2 btn-sm" href="">GO TO HOMEPAGE</a>
+            <a class="btn btn-outline-success mt-2 btn-sm" href="/feedback">Give us feedback</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-6">
+            <img src="https://cdn.pixabay.com/photo/2016/10/04/13/52/fail-1714367_640.jpg" class="h-100 w-100" />
+        </div>
+        <div class="col-6 p-2">
+            <p>Payment Failed</p>
+            <a class="btn btn-outline-success mt-2 btn-sm" href="">GO TO HOMEPAGE</a>
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    private bool IsPaymentSuccess = false;
+    private List<AppointmentDto> appointments = new List<AppointmentDto>();
+    private AppointmentRequestDto appointmentRequest { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            appointments = await _appointmentInterface.GetAppointments();
+            var Payments = await _payment.GetPayments();
+            var Payment = Payments.FirstOrDefault(x => x.PaymentId == Guid.Parse(Id));
+            IsPaymentSuccess = await _payment.ValidPayment(Guid.Parse(Id));
+            if (IsPaymentSuccess)
+            {
+                var Appointment = appointments.FirstOrDefault(x => x.AppointmentId == Payment?.AppointmentId);
+                appointmentRequest = new AppointmentRequestDto()
+                {                   
+                   Slot=Appointment.Slot,
+                   AppointmentType=Appointment.AppointmentType,
+                   Symptoms=Appointment.Symptoms,                  
+                   DoctorId=Appointment.DoctorId,
+                   AppointmentStatus="Paid",
+                   
+                    
+                };
+                var res = await _appointmentInterface.UpdateAppointment(Appointment.AppointmentId, appointmentRequest);
+            }
+        }catch(Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message);
+        }
+       
+
+    } 
+}

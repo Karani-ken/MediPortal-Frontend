@@ -1,0 +1,13 @@
+.Main-Page{
+   
+    overflow:hidden;
+}
+.Main-Container {
+    overflow: hidden;
+}
+/*small devices*/
+@media only screen and (max-width: 720px) {
+    .Main-Container{
+        margin:0;
+    }
+}

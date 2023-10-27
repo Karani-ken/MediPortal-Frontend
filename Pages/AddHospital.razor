@@ -1,0 +1,54 @@
+﻿@page "/addhospital"
+@using MediPortal_Client.Models.Hospital;
+@using MediPortal_Client.Services.Hospital;
+@inject IHospitalInterface hospitalInterface
+@inject NavigationManager navManager
+<div class="p-3">
+    <h1>Add Hospital</h1>
+    <EditForm Model="hospital" OnValidSubmit="registerHospital">
+        <div class="form-group">
+            <label>Name</label>
+            <InputText @bind-Value="hospital.Hospitalname" type="text" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Location</label>
+          <InputSelect class="form-control" @bind-Value="hospital.Location">
+                <option>Select a county</option>
+                @foreach(var County in Counties)
+                {
+                    <option>@County</option>
+                }
+            </InputSelect>
+        </div>       
+
+        <button class="btn btn-primary w-50 mt-2" style="background:#000235">Submit</button>
+    </EditForm>
+</div>
+
+
+@code {
+    private HospitalRequest hospital = new HospitalRequest();
+
+    public async Task registerHospital()
+    {
+        try
+        {
+            var res = await hospitalInterface.AddHospital(hospital);
+            if (res.IsSuccess)
+            {
+                navManager.NavigateTo("/dashboard");
+            }
+
+        }catch(Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message);
+        }
+    }
+    List<string> Counties = new List<string>()
+    {
+        "Nyeri",
+        "Nairobi",
+        "Kirinyaga",
+        "Murang'a"
+    };
+}

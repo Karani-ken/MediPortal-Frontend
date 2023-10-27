@@ -1,0 +1,59 @@
+﻿@page "/hospitals"
+@using MediPortal_Client.Models.Hospital;
+@using MediPortal_Client.Services.Hospital;
+@inject IHospitalInterface _hospitalInterface
+<div class="text-center mt-4" style="min-height:70vh;">
+
+    <h1 class="text-black">Our Partnered Hospitals</h1>
+    @if(hospitals.Count != 0)
+    {
+        <div class="d-flex justify-content-center flex-wrap mt-4">
+
+            @foreach (var item in hospitals)
+            {
+                <div class="card m-2 shadow-lg border-1" style="width: 18rem; height:12rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Hospitalname</h5>
+                        <p class="card-text">@item.Location</p>
+                    </div>
+                    @if(authenticated && role == "Admin")
+                    {
+                        <div class="d-flex justify-content-between p-2">
+                            <button class="btn btn-primary" style="background:#000235;">Edit</button>
+                            <button class="btn btn-primary" style="background:#E11;">Remove</button>
+                        </div>
+                    }                    
+                    
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <p class="text-black">Hospital Coming soon!!</p>
+    }
+
+</div>
+
+@code {
+    private List<HospitalDto> hospitals = new List<HospitalDto>();
+    [CascadingParameter]
+    public Task<AuthenticationState> _authState { get; set; }
+    private string role { get; set; }
+    public bool authenticated { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            hospitals = await _hospitalInterface.GetHospitals();   
+            var authState = await _authState;
+            role = authState.User.FindFirst("role")?.Value;            
+            authenticated = authState.User.Identity.IsAuthenticated;
+
+        }catch(Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message);
+        }
+    }
+}

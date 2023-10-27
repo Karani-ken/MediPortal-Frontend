@@ -1,0 +1,117 @@
+
+.Main-Nav{
+   display:flex;
+   justify-content:space-between;
+   align-content:center;
+   background:#000235;
+   
+}
+.Logo {
+    color: #FFF;
+    padding:3%;
+    margin: 2% 0;
+    font-weight: 700;
+    font-size: 36px;
+}
+
+ul{
+    margin:2% 0;
+    padding: 0 5%;
+    display:flex;
+    justify-content:space-around;
+    list-style:none;
+}
+li{
+   margin-left:30px;
+}
+a{
+    color:#fff;
+    text-decoration:none;
+    text-align:center;
+    font-weight:400;
+    font-size:16px;
+}
+#check {
+    display: none;
+}
+
+label #btn {
+   display:none;
+}
+
+label #cancel {
+ display:none;
+}
+
+/*small devices*/
+@media only screen and (max-width: 720px) {
+   
+   .Main-Nav{
+       display:flex;
+   }
+    .Logo {
+        margin: 0;
+        padding: 2%;
+        font-size: 40px;
+        font-weight: 900;
+    }
+
+
+    ul {
+        display: block;
+        position: absolute;
+        right: -250px;
+        width: 250px;
+        height: 80vh;
+        transition: all .2s ease;
+        background:#000235;
+    }ul li{
+         margin-top:15%;
+     }
+     ul li a{
+         font-size:20px;
+     }
+    #check {
+        display: none;
+    }
+
+    label #btn, label #cancel {
+        position: absolute;
+        cursor: pointer;
+        border-radius: 3px;
+    }
+
+    label #btn {
+        display:block;
+        right: 40px;
+        top: 5px;         
+        transition: all .2s ease;
+    }
+
+    label #cancel {
+        display:block;
+        z-index: 111;
+        right: -190px;
+        top: 5px;       
+        transition: all .2s ease;
+    }
+
+    #check:checked ~ .sidebar {
+        right: 0;
+    }
+
+    #check:checked ~ label #btn {
+        right: 250px;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    #check:checked ~ label #cancel {
+        right: 215px;
+    }
+
+    #check:checked ~ ul {
+        margin-right: 250px;
+    }
+   
+}

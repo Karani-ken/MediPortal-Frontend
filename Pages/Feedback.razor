@@ -1,0 +1,71 @@
+﻿@page "/feedback"
+@using MediPortal_Client.Models.Authentication;
+@using MediPortal_Client.Models.Feedback;
+@using MediPortal_Client.Services.Authentication;
+@using MediPortal_Client.Services.Feedback;
+@inject IAuthInterface _authInterface
+@inject IFeedbackInterface _feedback
+<div class="row">
+    <div class="col-lg-6">
+        <img src="https://cdn.pixabay.com/photo/2016/12/07/09/27/fax-1889009_640.jpg" class="h-75" />
+    </div>
+    <div class="col-lg-6">
+        <h3>Rate your doctor</h3>
+        <EditForm Model="@feedback" OnValidSubmit="SaveFeedback">
+            <div class="form-group">
+                <label for="rating">Rating out of 5</label>
+                <InputNumber class="form-control" @bind-Value="feedback.rating" />
+            </div>
+            <div class="form-group">
+                <label for="DoctorId">Doctor</label>
+                <InputSelect class="form-control" @bind-Value="feedback.DoctorId">
+                    <option>Select your doctor</option>
+                    @foreach (var user in Users)
+                    {
+                        if (!string.IsNullOrWhiteSpace(user.LicenseUrl))
+                        {
+                            <option value="@user.Id">Dr.@user.firstname @user.surname</option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+            <div class="form-group">
+                <label for="message">comment</label>
+                <InputText class="form-control" @bind-Value="feedback.Message" />
+            </div>
+            <button type="submit" class="btn btn-primary w-50 my-3">submit</button>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+    private FeedbackRequestDto feedback = new FeedbackRequestDto();
+
+    private List<UserDto> Users = new List<UserDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Users = await _authInterface.GetDoctors();
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message);
+        }
+    }
+
+    public async Task SaveFeedback()
+    {
+        try
+        {
+            var res = await _feedback.AddFeedback(feedback);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message);
+        }
+    }
+}

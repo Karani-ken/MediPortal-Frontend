@@ -1,0 +1,130 @@
+﻿@using MediPortal_Client.Models.Authentication;
+@inject IAuthInterface _authInterface
+<div class="row mt-md-0 mt-5" style="min-height:70vh;">
+  
+    <div class="col-lg-10">
+        <div class="d-flex justify-content-around">           
+            <a href="/addhospital" class="btn btn-primary w-50 mx-2 p-2" style="background:#000235; border-radius:15px;">
+                Register Hospital
+            </a>
+            <a href="/hospitals" class="btn btn-primary w-50 mx-2 p-2" style="background:#000235; border-radius:15px;">
+                View Hospital
+            </a>
+        </div>
+        <div class="m-1">
+            <div class="d-lg-flex shadow justify-content-between p-3" style=" border-radius:20px;">
+                <h4 class="text-black fw-bold">Doctors List</h4>
+                <select class="form-control w-25" @bind="SelectedOption">
+                    <option>Filter by</option>
+                    <option>Hospital</option>
+                    <option>By status</option>                    
+                </select>
+
+                <div class="d-lg-flex">
+                    <input placeholder="Search doctor..." class="rounded-3 text-center form-control" style=" border-radius:50px;" />
+                    <button class="btn btn-primary" style="background:#000235; border-radius:10px;">Search</button>
+                </div>
+               
+            </div>
+            <div class="table-responsive">
+                <table class="table mt-1 p-2">
+                    <thead style="background:#000235;color:#fff;">
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Hospital</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Action</th>
+                        </tr>
+
+                    </thead>
+                    <tbody>
+                        @foreach(var item in Users)
+                        {
+                           
+                           
+                            @if (!string.IsNullOrWhiteSpace(item.LicenseUrl))
+                            {
+                                @if (item.Status == "Approved")
+                                {
+                                    status = "Approved";
+                                }
+                                else
+                                {
+                                    status = "Pending";
+                                }
+                                <tr>
+                                    <td>Dr. @item.firstname  @item.surname</td>
+                                    <td>@item.HospitalName</td>
+                                    <td>@item.email</td>
+                                   <td>@status</td>                                   
+                                    <td> @if (item.Status == "Approved")
+                                        {
+                                            <button class="btn btn-danger" @onclick="(()=>Revoke(item.Id))" >Revoke</button>
+                                        }
+                                        else{
+                                            <button class="btn btn-primary" @onclick="(()=>Approve(item.Id))">Approve</button>
+                                            
+                                            }
+                                    </td>
+                                </tr>
+                            }
+                           
+                        }
+                       
+                        
+                        
+                    </tbody>
+                </table>
+            </div>
+           
+        </div>
+      
+    </div>
+    <div class="col-lg-2 card shadow text-center mb-2" style="" border-radius:0 30px 0 0; height:60vh;">
+        <div class="text-center">
+            <h6 class="p-3 text-white text-center m-3" style="background:#000235;border-radius:100%;
+                height:50px; width:50px;">20</h6>
+            <p>Registered Doctors</p>
+        </div>
+       
+        <h6 class="text-black">Pending approvals</h6>
+        <div class="p-2 text-white" style="background:#000235;border-radius:10px;">
+            <p><b>5</b> pending doctor </p>            
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private string status;
+    private string SelectedOption;
+    private List<UserDto> Users = new List<UserDto>();
+    public string role = "doctor";
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Users = await _authInterface.GetDoctors();
+
+
+        }catch(Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message);
+        }
+    }
+    public async Task Approve(Guid Id)
+    {
+        try
+        {
+            var res = await _authInterface.ApproveDoctor(Id, role);
+        }catch(Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message);
+        }
+    }
+    public async Task Revoke(Guid Id)
+    {
+        
+    }
+}

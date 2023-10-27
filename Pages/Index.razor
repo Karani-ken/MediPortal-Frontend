@@ -1,0 +1,138 @@
+﻿@page "/"
+@using MediPortal_Client.Models.Authentication;
+@using MediPortal_Client.Models.Feedback;
+@using MediPortal_Client.Services.Feedback;
+@inject IAuthInterface _authInterface
+@inject IFeedbackInterface _feedback
+<div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="devices-image">
+                <img src="https://cdn.pixabay.com/photo/2020/08/03/09/39/medical-5459631_640.png" style="width:350px; height:300px; top:111px; border-radius:300px;" />
+            </div>
+            <h1 class="header-text">
+                Your Gateway To Efficient Health Care
+            </h1>
+
+            <p style="font-weight:400;font-size:20px;color:#000235;">Book, Consult,Connect and Thrive</p>
+            <div style="display:flex; justify-content:center; align-content:center;">
+                <CascadingAuthenticationState>
+                    <AuthorizeView>
+                        <NotAuthorized>
+                            <a href="/login" class="btn btn-danger p-2" style="background:#000235;font-size:20px;border:none; border-radius:20px;text-align:center;width:166px;
+                                font-weight:600;">
+                                Sign in
+                            </a>
+                        </NotAuthorized>
+                         <Authorized>
+                            <a href="/signup" class="btn btn-danger p-2" style="background:#000235;font-size:20px;border:none; border-radius:20px;text-align:center;width:166px;
+                                font-weight:600;">
+                                Sign out
+                            </a>
+                         </Authorized>
+                    </AuthorizeView>
+                </CascadingAuthenticationState>          
+             
+               
+            </div>
+
+        </div>
+        <div class="col-lg-6">
+            <img src="https://cdn.pixabay.com/photo/2020/08/03/09/39/medical-5459631_640.png" style="width:450px; height:400px; top:111px; border-radius:300px;" class="Big-image" />
+        </div>
+    </div>
+    <div>
+        <Services/>
+    </div>
+    <div class="my-5">
+        <div class="d-flex justify-content-center">
+            <h1 style="font-size:40px; font-weight:600; color:#000235;" class="m-1">Doctors</h1>
+            <img src="https://cdn.pixabay.com/photo/2020/08/03/09/43/medical-5459654_640.png" style="width:57.47px; height:60px; top:571px;left:809px;" class="m-1" />
+        </div>
+        
+        <div class="container">
+            <div class="row">
+                @foreach(var doc in Users)
+                {
+                    if (!string.IsNullOrWhiteSpace(doc.LicenseUrl))
+                    {
+                        <div class="col-lg-3">
+                            <div class="card  p-0 m-3 shadow" style="border:none; border-radius:20px;">
+                                <div class="card-body p-2 text-start">
+                                    <h6 class="text-center fw-bolder text-black">Name: @doc.firstname @doc.surname</h6>
+                                    <ul style="list-style:none;">
+                                        <li class="">Hospital: @doc.HospitalName</li>                                       
+                                        <li>Speciality: @doc.speciality</li>
+                                    </ul>
+
+                                    <div class="mx-4">
+                                        <p>rating</p>
+                                        <div style="color:#000235;" class="m-2">
+                                            <i class="fa fa-star" aria-hidden="true"></i>
+                                            <i class="fa fa-star" aria-hidden="true"></i>
+                                            <i class="fa fa-star" aria-hidden="true"></i>
+                                            <i class="fa fa-star-half-o" aria-hidden="true"></i>
+                                            <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+                  
+
+
+                
+            </div>
+        </div>   
+       
+    </div>
+    <div>
+        <div class="d-flex justify-content-center">
+            <h1 style="font-size:40px; font-weight:600; color:#000235;" class="m-1">About us</h1>          
+        </div>
+        <AboutCard/>
+    </div>
+    <div class="text-center">
+        <h1 style="font-size:40px; font-weight:600; color:#000235;" class="m-1">Feedback</h1>
+        <div class="d-lg-flex flex-wrap">
+        @foreach(var feedback in feedbacks)
+        {
+            var user = Users.FirstOrDefault(x => x.Id == feedback.PatientId);
+           
+                <div class=" shadow m-3 p-3" style="max-width: 18rem; border-radius:10% 10% 0 10%;">
+                    <h6 class=" text-start">@user?.firstname @user?.surname</h6>
+                    <div class="card-body text-primary">
+                        <p class="card-text">@feedback?.Message</p>
+                    </div>
+                </div>
+            
+           
+        }
+        </div>
+    </div>
+    
+</div>
+
+@code {
+    private List<FeedbackDto> feedbacks = new List<FeedbackDto>();
+    private List<UserDto> Users = new List<UserDto>();
+    private List<UserDto> Doctors = new List<UserDto>();
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Users = await _authInterface.GetDoctors();
+            feedbacks = await _feedback.GetAllFeedbacks();
+            Console.WriteLine(feedbacks.Count);
+           
+        }catch(Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message);
+        }
+    }
+
+}

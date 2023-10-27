@@ -1,0 +1,153 @@
+﻿@page "/bookingpage"
+@using MediPortal_Client.Models.Authentication;
+@using MediPortal_Client.Models.Hospital;
+@using MediPortal_Client.Services.Appointment;
+@using MediPortal_Client.Services.Hospital;
+@inject IHospitalInterface _hopsitalInteface
+@inject IAuthInterface _authInterface
+@inject IAppointmentInterface _appointmentInterface
+@inject NavigationManager _navigate
+
+<div class="row m-lg-5 my-4 p-3 shadow-lg" style=" border-radius:30px 0 30px 0;">
+   
+    <div class="col-lg-6  text-center">
+        <h1>Booking page</h1>
+        <img src="https://cdn.pixabay.com/photo/2022/07/24/17/47/booking-7342164_640.png" class="w-50 my-3" />
+    </div>
+    <div class="col-lg-6">
+       
+        <EditForm Model="@appointment" OnValidSubmit="Book">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="form-group">
+                <label for="hospital">Hospital</label>
+                <InputSelect @bind-Value="@appointment.HospitalId" class="form-control">
+                   <option>Select a hospital</option>
+                    @foreach(var item in Hospitals)
+                    {
+                        <option value="@item.HospitalId">@item.Hospitalname</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>appointment.HospitalId)" />
+            </div>
+            <div class="form-group">
+                <label for="type">Appointment Type</label>
+                <InputSelect @bind-Value="@appointment.AppointmentType" class="form-control">                   
+                    <option>Select</option>
+                    @foreach (var item in appointmentTypes)
+                    {
+
+                        <option value="@item">@item</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>appointment.AppointmentType)" />
+            </div>           
+                
+                <div class="form-group">
+                    <label for="doctor">Doctor</label>
+                        <InputSelect @bind-Value="@appointment.DoctorId" class="form-control">
+                                <option>Select a Doctor</option>
+                                   @*  @if (appointment.HospitalId != null && appointment.AppointmentType != null)
+                                    {
+                                        var selectedHospital = Hospitals.FirstOrDefault(h => h.HospitalId == appointment.HospitalId);
+                                        foreach (var item in Doctors)
+                                        {
+                                            if (item.HospitalName == selectedHospital?.Hospitalname && item.speciality == appointment.AppointmentStatus)
+                                            {
+                                                <option value="@item.Id">Dr. @item.firstname @item.surname</option>
+                                            }
+
+                                        }
+                                    } *@
+                            @foreach(var item in Users)
+                            {
+                                if (!string.IsNullOrWhiteSpace(item.LicenseUrl))
+                                {
+                                     <option value="@item.Id">Dr. @item.firstname @item.surname</option>
+                                }
+                       
+                            }
+                        </InputSelect>
+                            <ValidationMessage For="@(()=>appointment.DoctorId)" />
+                </div>
+            <div class="form-group">
+                <label for="date">Date</label>
+                <InputDate  @bind-Value="@appointment.AppointmentDate" class="form-control p-3" />
+                <ValidationMessage For="@(()=>appointment.AppointmentDate)" />
+            </div>
+            <div class="form-group">
+                <label for="slot">Slot</label>
+                <InputSelect @bind-Value="@appointment.Slot" class="form-control">
+                    <option>Select a slot</option>                    
+                    @foreach(var item in timeOptions)
+                    {
+                        <option>@item</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>appointment.Slot)" />
+            </div>
+          
+             <div class="form-group">
+                <label for="slot">Symptoms</label>
+                <InputText type="text" @bind-Value="@appointment.Symptoms" class="form-control p-3" />
+                <ValidationMessage For="@(()=>appointment.Symptoms)" />
+            </div>
+            <div class="form-group p-3 text-center">
+                <button type="submit" class="btn btn-primary p-2" style="background:#000235; width:150px; font-weight:600; border-radius:20px; border:none;">Book</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private AppointmentRequestDto appointment = new AppointmentRequestDto();
+    private List<HospitalDto> Hospitals = new List<HospitalDto>();
+    private List<UserDto> Users = new List<UserDto>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Users = await _authInterface.GetDoctors();
+
+            Hospitals = await _hopsitalInteface.GetHospitals();
+
+        }catch(Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message);
+        }
+    }
+    public async Task Book()
+    {
+        try
+        {
+            appointment.AppointmentStatus = "Not Yet";
+            var res = await _appointmentInterface.AddAppointment(appointment);
+            if (res.IsSuccess)
+            {
+                _navigate.NavigateTo("/dashboard");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message);
+        }
+    }
+    private List<string> appointmentTypes = new List<string>
+    {        
+        "Dentist",
+        "Ophthalmologist"
+    };
+    private List<string> timeOptions = new List<string>
+    {
+        "08:00 AM",
+        "09:00 AM",
+        "10:00 AM",
+        "11:00 AM",
+        "12:00 PM",
+        "01:00 PM",
+        "02:00 PM",
+        "03:00 PM",
+    };
+}

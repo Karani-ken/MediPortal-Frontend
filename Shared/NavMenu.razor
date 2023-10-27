@@ -1,0 +1,45 @@
+﻿@inject NavigationManager navigationManager
+@inject ILocalStorageService localStorage
+@inject AuthenticationStateProvider authProvider
+<div class="Main-Nav">
+
+    <a href="/"><h1 class="Logo">MediPortal</h1></a>
+    <input type="checkbox" id="check" />
+    <label for="check">
+        <i class="fa-solid fa-bars" style="color:#fff; font-size:40px;  padding:2%;" id="btn"> </i>
+        <i class="fas fa-times" style="color:#fff; font-size:40px;   padding:2%;" id="cancel"></i>
+    </label>
+   <ul>
+       
+        <CascadingAuthenticationState>
+            <AuthorizeView>
+                <NotAuthorized>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/services">services</a></li>
+                    <li><a href="/about">about us</a></li>
+                    <li><a href="/hospitals">Hospitals</a></li>
+                    <li><a href="/feedback">feedback</a></li>
+                    <li><a href="/login">sign in</a></li>
+                </NotAuthorized>
+                 <Authorized>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/services">services</a></li>
+                    <li><a href="/about">about us</a></li>
+                    <li><a href="/hospitals">Hospitals</a></li>
+                    <li><a href="/feedback">feedback</a></li>
+                    <li><button class="btn btn-primary" @onclick="logout" style="background:#000234;">sign out</button></li>
+                 </Authorized>
+            </AuthorizeView>
+        </CascadingAuthenticationState>     
+
+   </ul>
+  
+</div>
+@code{
+    public async void logout()
+    {
+        await localStorage.RemoveItemAsync("authToken");
+        await authProvider.GetAuthenticationStateAsync();
+        navigationManager.NavigateTo("/");
+    }
+}

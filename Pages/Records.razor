@@ -1,0 +1,119 @@
+﻿@page "/records"
+@using MediPortal_Client.Models.History;
+@using MediPortal_Client.Models.History;
+   
+
+<div class="row">
+    <div class="col-lg-6">
+        <h3>Medical History</h3>
+
+        <div class="form-group">
+            <label>Patient Name</label>
+            <p>@history.PatientName</p>
+        </div>
+
+        <div class="form-group">
+            <label>Date of Birth</label>
+            <p>@history.DateOfBirth.ToShortDateString()</p>
+        </div>
+
+        <div class="form-group">
+            <label>Gender</label>
+            <p>@history.Gender</p>
+        </div>
+
+        <div class="form-group">
+            <label>Contact Number</label>
+            <p>@history.ContactNumber</p>
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+            <p>@history.Email</p>
+        </div>
+
+        <h4>Allergies</h4>
+        <div class="form-group">
+            @foreach (var allergy in history.Allergies)
+            {
+                <p>@allergy</p>
+            }
+        </div>
+
+        <h4>Chronic Conditions</h4>
+        <div class="form-group">
+            @foreach (var condition in history.ChronicConditions)
+            {
+                <p>@condition</p>
+            }
+        </div>
+
+        <h4>Medications</h4>
+        <div class="form-group">
+            @foreach (var medication in history.Medications)
+            {
+                <p>@medication</p>
+            }
+        </div>
+
+        <h4>Medical Procedures</h4>
+        <div class="form-group">
+            @foreach (var procedure in history.MedicalProcedures)
+            {
+                <div class="procedure">
+                    <p><strong>Procedure Name:</strong> @procedure.ProcedureName</p>
+                    <p><strong>Date Performed:</strong> @procedure.DatePerformed.ToShortDateString()</p>
+                    <p><strong>Notes:</strong> @procedure.Notes</p>
+                </div>
+            }
+        </div>
+        <button class="btn btn-primary" style="background:#000235;">Update History</button>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>Appointment</h4>
+            </div>
+            <div class="card-body">               
+                <p><strong>Patient Name:</strong> @appointment.Patient.surname</p>
+                <p><strong>Doctor:</strong> @appointment.Doctor</p>
+                <p><strong>Date:</strong> @appointment.AppointmentDate.ToString("MMMM dd, yyyy HH:mm tt")</p>
+                <p><strong>Status:</strong> @appointment.AppointmentStatus</p>
+                <p><strong>Agenda:</strong> @appointment.AppointmentId</p>
+                <p><strong>Hospital:</strong> @appointment.Hospital</p>
+                <p><strong>Symptoms:</strong> @appointment.Symptoms</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private AddHistoryRequest history = new AddHistoryRequest
+        {
+            PatientName = "John Doe",
+            DateOfBirth = new DateTime(1980, 1, 1),
+            Gender = "Male",
+            ContactNumber = "123-456-7890",
+            Email = "johndoe@example.com",
+            Allergies = new List<string> { "Pollen", "Penicillin" },
+            ChronicConditions = new List<string> { "Hypertension" },
+            Medications = new List<string> { "Aspirin" },
+            MedicalProcedures = new List<MedicalProcedure>
+        {
+            new MedicalProcedure { ProcedureName = "X-ray", DatePerformed = new DateTime(2022, 1, 15), Notes = "Routine checkup" },
+        }
+        };
+
+    private AppointmentDto appointment = new AppointmentDto
+        {
+            AppointmentId = Guid.NewGuid(),
+            Patient = null,
+            Doctor = null,
+           AppointmentDate = DateTime.Now.AddHours(24),
+            AppointmentStatus = "Scheduled",
+            AppointmentType = "Follow-up",
+            Hospital = null,
+            Symptoms = "Fever, cough",
+        };
+}

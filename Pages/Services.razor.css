@@ -1,0 +1,63 @@
+﻿.services-container{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    grid-template-rows:repeat(3,30%);
+    grid-template-areas:"one one two"
+                        "three four four"
+                         "five five six";
+    gap:20px;
+
+}
+.consultations-card{
+    grid-area:one;
+    display:flex;
+    margin:5% 0;
+    height:auto;
+   
+}
+.ghost-card1{
+    grid-area:two;
+
+}
+.ghost-card2 {
+    grid-area: three;
+}
+.Appointment-card {
+    grid-area: four;
+    display: flex;
+    margin: 5% 0;
+    height: auto;
+}
+.Records-card {
+    grid-area: five;
+    display: flex;
+    margin: 5% 0;
+    height: auto;
+}
+.ghost-card3 {
+    grid-area: six;
+}
+@media only screen and (max-width: 720px) {
+    .services-container {
+        display: block;
+       
+    }
+    .consultations-card {
+        display: block;
+        margin: 5% 0;
+    }
+    .Appointment-card {
+        display: block;
+        margin: 5% 0;
+    }
+    .Records-card {
+      
+        display: block;
+        margin: 5% 0;
+    }
+    img{
+        margin:5% 0;
+    }
+
+    
+}

@@ -1,0 +1,63 @@
+﻿@page "/login"
+@using MediPortal_Client.Models.Authentication;
+@inject IAuthInterface authInterface
+@inject ILocalStorageService localStorage
+@inject AuthenticationStateProvider authProvider
+@inject NavigationManager navManager
+    <div class="row m-lg-5 my-4 p-3 shadow" style="min-height:70vh; border-radius:30px 0 30px 0;">
+     
+        <div class="col-lg-6 text-center">
+        <h1 class="text-black p-3">Login</h1>
+            <img src="https://cdn.pixabay.com/photo/2016/08/31/11/54/icon-1633249_640.png" style="height:200px;" />
+            <p class="text-black">Not yet a member? <a href="/signup" style="color:#000235;">Sign up</a></p>
+        </div>
+        <div class="col-lg-6 ">
+            <EditForm Model="@user" OnValidSubmit="LoginUser">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="form-group ">
+                    <label for="Username">Email</label>
+                    <InputText type="email" @bind-Value="@user.Username" id="email" class="form-control p-3" />
+                    <ValidationMessage For="@(()=>user.Username)" />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <InputText @bind-Value="@user.password" id="password" class="form-control p-3" />
+                    <ValidationMessage For="@(()=>user.password)" />
+                </div>
+                <div class="form-group p-3 text-center">
+                    <button type="submit" class="btn btn-primary p-2" style="background:#000235; width:150px; font-weight:600; border-radius:20px; border:none;">Login</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+
+
+@code {
+    private LoginRequestDto user = new LoginRequestDto();
+    [CascadingParameter]
+    public Task<AuthenticationState> _authState { get; set; }
+    private bool authenticated { get; set; }    
+
+    public async Task LoginUser()
+    {
+        try
+        {
+            var res = await authInterface.Login(user);
+            Console.WriteLine(res.Token);
+            if (!string.IsNullOrWhiteSpace(res.Token))
+            {
+                await localStorage.SetItemAsStringAsync("authToken", res.Token);
+                await authProvider.GetAuthenticationStateAsync();
+                navManager.NavigateTo("/dashboard");
+            }
+        }catch(Exception EX)
+        {
+            Console.WriteLine(EX.InnerException.Message);
+        }
+
+
+    }
+   
+}

@@ -1,0 +1,37 @@
+﻿@page "/dashboard"
+@attribute [Authorize]
+    @if(authenticated && role == "Admin")
+    {
+        <AdminDashboard />
+    }else if(authenticated && role == "doctor")
+    {
+        <DoctorDashboard/>
+    }
+    else
+    {
+        <PatientDashboard/>
+    }
+
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> _authState { get; set; }
+    private string role { get; set; }
+    public bool authenticated { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await _authState;
+            role =  authState.User.FindFirst("role")?.Value;           
+            authenticated = authState.User.Identity.IsAuthenticated;
+            Console.WriteLine(authenticated);
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message);
+        }
+
+    }
+}

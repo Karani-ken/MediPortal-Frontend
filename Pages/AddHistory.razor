@@ -1,0 +1,127 @@
+﻿@page "/addhistory"
+@using MediPortal_Client.Models.History;
+<div class="row my-5 p-3 shadow-lg" style=" height:auto;border-radius:20px;">
+    
+    <div class="col-lg-4 text-white text-center mt-5">
+        <h1>Add history</h1>
+        <img src="https://cdn.pixabay.com/photo/2017/05/15/23/46/pedigree-icon-2316458_640.png" class="h-25"/>
+    </div>
+    <div class="col-lg-8">
+        <EditForm Model="history">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+            <div class="form-group">
+                <label for="patientName">Patient Name:</label>
+                <InputText id="patientName" @bind-Value="history.PatientName" class="form-control" />
+                <ValidationMessage For="() => history.PatientName" />
+            </div>
+
+            <div class="form-group">
+                <label for="dateOfBirth">Date of Birth:</label>
+                <InputDate id="dateOfBirth" @bind-Value="history.DateOfBirth" class="form-control" />
+                <ValidationMessage For="() => history.DateOfBirth" />
+            </div>
+            <div class="form-group">
+                <label for="gender">Gender:</label>
+                <InputSelect id="gender" @bind-Value="history.Gender" class="form-control">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </InputSelect>
+                <ValidationMessage For="() =>history.Gender" />
+            </div>
+            <div class="form-group">
+                <label for="contactNumber">Contact Number:</label>
+                <InputText id="contactNumber" @bind-Value="history.ContactNumber" class="form-control" />
+                <ValidationMessage For="() => history.ContactNumber" />
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <InputText id="email" @bind-Value="history.Email" class="form-control" />
+                <ValidationMessage For="() => history.Email" />
+            </div>
+            <div class="form-group">
+                <label for="allergies">Allergies (comma-separated):</label>
+                <InputText id="allergies" @bind-Value="allergiesInput" class="form-control" />
+                <button class="btn btn-primary mt-2" style="background:#000235;" @onclick="AddAllergies">Add Allergies</button>
+                <ul>
+                    @foreach (var allergy in history.Allergies)
+                    {
+                        <li>@allergy</li>
+                    }
+                </ul>
+            </div>
+            <div class="form-group">
+                <label for="chronicConditions">Chronic Conditions (comma-separated):</label>
+                <InputText id="chronicConditions" @bind-Value="chronicConditionsInput" class="form-control" />
+                <button class="btn btn-primary mt-2" style="background:#000235;" @onclick="AddChronicConditions">Add Chronic Conditions</button>
+                <ul>
+                    @foreach (var condition in history.ChronicConditions)
+                    {
+                        <li>@condition</li>
+                    }
+                </ul>
+            </div>
+            <div class="form-group">
+                <label for="medications">Medications (comma-separated):</label>
+                <InputText id="medications" @bind-Value="medicationsInput" class="form-control" />
+                <button class="btn btn-primary mt-2" style="background:#000235;" @onclick="AddMedications">Add Medications</button>
+                <ul>
+                    @foreach (var medication in history.Medications)
+                    {
+                        <li>@medication</li>
+                    }
+                </ul>
+            </div>
+            <div class="form-group">
+                <button type="submit" style="background:#000235;" class="btn btn-primary">Submit</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private AddHistoryRequest history = new AddHistoryRequest();
+
+    private string allergiesInput = "";
+    private string chronicConditionsInput = "";
+    private string medicationsInput = "";
+
+    private void HandleValidSubmit()
+    {
+        // Handle form submission here (e.g., save data to a database)
+        // You can access the patientMedicalHistory object for the submitted data
+    }
+    private void AddAllergies()
+    {
+        if (!string.IsNullOrWhiteSpace(allergiesInput))
+        {
+            var allergies = allergiesInput.Split(',');
+            history.Allergies.AddRange(allergies);
+            allergiesInput = "";
+        }
+    }
+    private void AddChronicConditions()
+    {
+        if (!string.IsNullOrWhiteSpace(chronicConditionsInput))
+        {
+            var conditions = chronicConditionsInput.Split(',');
+            history.ChronicConditions.AddRange(conditions);
+            chronicConditionsInput = "";
+        }
+    }
+    private void AddMedications()
+    {
+        if (!string.IsNullOrWhiteSpace(medicationsInput))
+        {
+            var medications = medicationsInput.Split(',');
+           history.Medications.AddRange(medications);
+            medicationsInput = "";
+        }
+    }
+
+    private void AddMedicalProcedure()
+    {
+        history.MedicalProcedures.Add(new MedicalProcedure());
+    }
+}

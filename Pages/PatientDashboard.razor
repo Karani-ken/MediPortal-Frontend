@@ -1,0 +1,92 @@
+﻿@using MediPortal_Client.Services.Appointment;
+
+@inject IAppointmentInterface _appointmentInterface
+@inject NavigationManager _navManager
+@inject IJSRuntime JSRuntime
+
+<div class="row my-2">
+   <div class="text-center">
+       <h4>Welcome @User</h4>
+   </div>
+    <div class="col-lg-12">
+        <div class="d-flex  justify-content-center my-2">
+            <a href="/bookingpage" class="btn btn-primary m-1" style="background:#000235">Book Appointment</a>
+            <a href="/addhistory" class="btn btn-primary m-1" style="background:#000235;"> Add History</a>          
+        </div>
+      
+        <div class="text-center  p-3 my-1" style="color:#000235; border:1px solid #000235; border-radius:10px;">
+            <h4>Appointment History</h4>
+            <p>Click appointment to view details</p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Hospital</th>                    
+                        <th scope="col">status</th>                      
+                    </tr>
+                
+                </thead>
+                <tbody>
+                    @foreach (var item in appointments)
+                    {
+                        if(item.Patient.firstname == User)
+                        {
+                            <tr style="cursor:pointer;" @onclick="@(()=>OnConfirm(item.AppointmentId))">
+                                <td>@item.AppointmentDate.ToString("dd/MM/yy")</td>
+                                <td>@item.Hospital?.Hospitalname</td>
+                                <td>@item.AppointmentStatus</td>
+
+                            </tr>
+                        }
+                       
+
+
+
+                    }
+                </tbody>
+            </table>
+        </div>
+      
+    
+        
+            
+    </div>
+  
+</div>
+@code {
+    public string User;
+    public Guid UserId;
+    [CascadingParameter]
+    public Task<AuthenticationState> _authState { get; set; }
+    private List<AppointmentDto> appointments = new List<AppointmentDto>();
+   
+   
+  
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            appointments = await _appointmentInterface.GetAppointments();
+            var authState = await _authState;
+            var username = authState.User.FindFirst("name")?.Value;
+            var Id = authState.User.FindFirst("sub")?.Value;
+            User = username;
+            UserId = Guid.Parse(Id);
+
+        }catch(Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message);
+        }
+       
+    }
+   
+
+    public void OnConfirm(Guid Id)
+    {
+        _navManager.NavigateTo($"/viewappointment/{Id}");
+    }
+   
+
+
+}

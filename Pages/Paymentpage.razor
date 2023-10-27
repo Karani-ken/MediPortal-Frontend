@@ -1,0 +1,54 @@
+﻿@page "/confirmPayment/{Id}"
+@using MediPortal_Client.Models.Payment;
+@using MediPortal_Client.Services.Payment;
+@inject NavigationManager _navManager
+@inject IPaymentInterface _payment
+<div class="row">
+    <div class="col-lg-6">
+        <img src="https://cdn.pixabay.com/photo/2016/10/10/22/37/credit-card-1730085_640.jpg" class="h-75" />
+    </div>
+    <div class="col-lg-6">
+        <h3>Payment Details</h3>
+        <p>@payment?.Name</p>
+        <p>@payment?.Email</p>
+        <p>@payment?.Medication</p>
+        <p>@payment?.DoctorName</p>
+        <p>@payment?.PaymentStatus</p>
+        <p>@payment?.TotalCharges</p>
+        <button class="btn btn-primary" @onclick="StripePayment">Complete Payment</button>
+    </div>
+</div>
+<h3>ConfirmPayment</h3>
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    private PaymentDto? payment { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            var payments = await _payment.GetPayments();
+            payment = payments.FirstOrDefault(x => x.PaymentId == Guid.Parse(Id));
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.InnerException.Message);
+        }
+    }
+    private async Task StripePayment()
+    {
+        var stripe = new StripeRequestDto()
+            {
+                ApprovedUrl = $"https://mediportalclient.azurewebsites.net/paymentSuccess/{payment?.PaymentId}",
+                CancelUrl = "https://mediportalclient.azurewebsites.net/",
+                payment = payment,
+            };
+        var stripeRequest = await _payment.StripePayment(stripe);
+        _navManager.NavigateTo(stripeRequest.StripeSessionUrl, true);
+    }
+
+}
